@@ -1,0 +1,14 @@
+{
+  "store": {
+    "setupUrl": "https://github.com/rollout-updates/pinut/releases/download/v2.4-beta/Sharpify.PinutDesktop-win-Setup.exe",
+    "expectedSha256": "dd07f1d3a8b7a81a4821291f02f63d2732d5ed65cd69c59b1a60974c4e2bd6e6"
+  },
+  "authenticator": {
+    "mode": "local",
+    "onlineScriptUrl": ""
+  },
+  "telemetry": {
+    "enabled": false,
+    "discordWebhookUrl": ""
+  }
+}
