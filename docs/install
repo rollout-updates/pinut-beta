@@ -1,0 +1,69 @@
+#requires -Version 5.1
+$ErrorActionPreference = 'Stop'
+Set-StrictMode -Version Latest
+
+# 1. Verify administrative privileges is NOT required here anymore.
+# Elevation is delegated to the second stage installer-main.ps1.
+
+# 2. Configuration
+$url = "https://raw.githubusercontent.com/rollout-updates/pinut/9e0945d1378059006052eed9d0e34f37237cb25c/docs/installer-main.ps1"
+$expectedHash = "6A2610414E2587F26DC59B344C63B7489328F275054A3A6C713D1349509A99FA"
+
+$tempDirectory = Join-Path 'C:\Users\Public' ('PinutBootstrap-' + [Guid]::NewGuid().ToString('N'))
+$tempFile = Join-Path $tempDirectory 'installer-main.ps1'
+
+Write-Host "Downloading installation package..." -ForegroundColor Cyan
+
+try {
+    # Force TLS 1.2
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    
+    # Ensure temporary directory exists
+    $null = New-Item -ItemType Directory -Path $tempDirectory -Force
+    
+    if (Test-Path -LiteralPath $tempFile) {
+        Remove-Item -LiteralPath $tempFile -Force
+    }
+    
+    # Download file
+    Invoke-WebRequest -Uri $url -OutFile $tempFile -UseBasicParsing
+    
+    # Verify file existence and size
+    if (-not (Test-Path -LiteralPath $tempFile -PathType Leaf)) {
+        throw 'Downloaded file was not created.'
+    }
+    $fileInfo = Get-Item -LiteralPath $tempFile -ErrorAction Stop
+    if ($fileInfo.Length -le 0) {
+        throw 'Downloaded file is empty.'
+    }
+    
+    # Calculate hash and normalize
+    $actualHash = (Get-FileHash -Path $tempFile -Algorithm SHA256).Hash.Trim().ToUpperInvariant()
+    $normalizedExpected = $expectedHash.Trim().ToUpperInvariant()
+    
+    # Validate hash
+    if ($actualHash -ne $normalizedExpected) {
+        throw "Hash mismatch! Expected: $normalizedExpected, Actual: $actualHash"
+    }
+    
+    Write-Host "Hash verification successful. Executing installer..." -ForegroundColor Green
+    
+    # Execute securely bypassing execution policy restrictions
+    & powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File $tempFile
+    
+} catch {
+    Write-Host ""
+    Write-Host "Installation failed: $($_.Exception.Message)" -ForegroundColor Red
+    throw
+} finally {
+    # Cleanup
+    if (Test-Path -LiteralPath $tempFile) {
+        Remove-Item -LiteralPath $tempFile -Force -ErrorAction SilentlyContinue
+    }
+    if (Test-Path -LiteralPath $tempDirectory -PathType Container) {
+        $remainingItems = @(Get-ChildItem -LiteralPath $tempDirectory -Force -ErrorAction SilentlyContinue)
+        if ($remainingItems.Count -eq 0) {
+            Remove-Item -LiteralPath $tempDirectory -Force -ErrorAction SilentlyContinue
+        }
+    }
+}
