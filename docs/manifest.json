@@ -1,0 +1,21 @@
+{
+  "version": "1.0.0",
+  "source": "https://keyssteam.com/install",
+  "filename": "keyssteam-install.ps1",
+  "sha256": "E4ED5B7404561A2BC2141E20D459E8A7F582D98809ACA0D73A7330C8756BF578",
+  "updateCount": 3,
+  "history": [
+    {
+      "sha256": "E4ED5B7404561A2BC2141E20D459E8A7F582D98809ACA0D73A7330C8756BF578",
+      "date": "2026-07-12T14:39:43Z"
+    },
+    {
+      "sha256": "E4ED5B7404561A2BC2141E20D459E8A7F582D98809ACA0D73A7330C8756BF578",
+      "date": "2026-07-12T15:13:45.352Z"
+    },
+    {
+      "sha256": "E4ED5B7404561A2BC2141E20D459E8A7F582D98809ACA0D73A7330C8756BF578",
+      "date": "2026-07-12T15:22:12.303Z"
+    }
+  ]
+}

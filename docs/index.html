@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pinut Desktop - Central de Downloads</title>
+  
+  <!-- Premium Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Sleek Dark/Light Adaptive Premium Style Sheet -->
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      --card-bg: rgba(30, 41, 59, 0.7);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --primary-color: #6366f1;
+      --primary-hover: #4f46e5;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --success-glow: rgba(34, 197, 94, 0.15);
+      --shadow-color: rgba(0, 0, 0, 0.3);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg-gradient);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+      overflow-x: hidden;
+    }
+
+    /* Premium Glow Background Elements */
+    .glow-sphere {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(0,0,0,0) 70%);
+      top: 10%;
+      left: 15%;
+      z-index: 1;
+      pointer-events: none;
+      filter: blur(40px);
+    }
+    .glow-sphere-2 {
+      position: absolute;
+      width: 350px;
+      height: 350px;
+      background: radial-gradient(circle, rgba(236, 72, 153, 0.1) 0%, rgba(0,0,0,0) 70%);
+      bottom: 10%;
+      right: 15%;
+      z-index: 1;
+      pointer-events: none;
+      filter: blur(40px);
+    }
+
+    .container {
+      max-width: 680px;
+      width: 100%;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 3rem 2.5rem;
+      box-shadow: 0 25px 50px -12px var(--shadow-color);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      z-index: 10;
+      text-align: center;
+      position: relative;
+      animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Logo / Icon Header */
+    .app-icon {
+      width: 72px;
+      height: 72px;
+      background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);
+      border-radius: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      margin-bottom: 0.75rem;
+      background: linear-gradient(to right, #f8fafc, #cbd5e1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      margin-bottom: 2.5rem;
+      line-height: 1.6;
+    }
+
+    /* Download Box Dynamic card styling */
+    .download-card {
+      background: rgba(15, 23, 42, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 18px;
+      padding: 2rem;
+      margin-bottom: 2.5rem;
+      position: relative;
+    }
+
+    .release-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.9rem;
+    }
+
+    .badge {
+      background: rgba(99, 102, 241, 0.15);
+      color: #a5b4fc;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .btn-download {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      background: var(--primary-color);
+      color: white;
+      text-decoration: none;
+      padding: 1.1rem 2rem;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
+      cursor: pointer;
+    }
+
+    .btn-download:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+    }
+
+    .btn-download:active {
+      transform: translateY(0);
+    }
+
+    .btn-download svg {
+      margin-right: 0.5rem;
+    }
+
+    /* VirusTotal Buttons Container & Styling */
+    .virustotal-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .btn-virustotal {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(34, 197, 94, 0.08);
+      color: #4ade80;
+      text-decoration: none;
+      padding: 0.8rem 1.2rem;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      border: 1px solid rgba(34, 197, 94, 0.25);
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.05);
+    }
+
+    .btn-virustotal:hover {
+      background: rgba(34, 197, 94, 0.15);
+      border-color: rgba(34, 197, 94, 0.45);
+      transform: translateY(-1.5px);
+      box-shadow: 0 6px 16px rgba(34, 197, 94, 0.15);
+    }
+
+    .btn-virustotal:active {
+      transform: translateY(0);
+    }
+
+    .btn-virustotal svg {
+      margin-right: 0.4rem;
+    }
+
+
+    /* Specifications Grid */
+    .specs-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      text-align: left;
+      margin-bottom: 2rem;
+    }
+
+    .spec-item {
+      background: rgba(30, 41, 59, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      border-radius: 14px;
+      padding: 1.1rem 1.25rem;
+    }
+
+    .spec-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .spec-value {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    /* Script CLI command card */
+    .cli-card {
+      background: #090d16;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      margin-top: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-align: left;
+    }
+
+    .cli-code {
+      font-family: 'Courier New', Courier, monospace;
+      color: #38bdf8;
+      font-size: 0.85rem;
+      word-break: break-all;
+    }
+
+    .btn-copy {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0.4rem;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-copy:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: white;
+    }
+
+    footer {
+      margin-top: 3rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      z-index: 10;
+    }
+
+    footer a {
+      color: var(--text-main);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="glow-sphere"></div>
+  <div class="glow-sphere-2"></div>
+
+  <div class="container">
+    <div class="app-icon">P</div>
+    <h1>Pinut Desktop</h1>
+    <p class="subtitle">Instalador oficial unificado para Windows. Prepara seu ambiente nativo (Steam, App e Autenticador) em um único clique de forma auditável e livre de malwares.</p>
+
+    <div class="download-card">
+      <div class="release-info">
+        <span class="badge" id="version-tag">Carregando versão...</span>
+        <span style="color: var(--text-muted);" id="release-date">Buscando detalhes...</span>
+      </div>
+
+      <a class="btn-download" id="download-link" href="#">
+        <!-- SVG Download Icon -->
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        Baixar para Windows (x64)
+      </a>
+
+      <!-- VirusTotal Security Checks -->
+      <div class="virustotal-container">
+        <a class="btn-virustotal" href="https://www.virustotal.com/gui/file/2bd5f6a99f3f4f894d371018a5de8f54bf7d36199783ade6d3a9e80fb5ac7a61" target="_blank" title="Verificar relatório do assistente no VirusTotal">
+          <!-- Shield Check SVG -->
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 11 2 2 4-4"></path></svg>
+          VirusTotal: Assistente
+        </a>
+        <a class="btn-virustotal" href="https://www.virustotal.com/gui/file/dd07f1d3a8b7a81a4821291f02f63d2732d5ed65cd69c59b1a60974c4e2bd6e6" target="_blank" title="Verificar relatório da loja no VirusTotal">
+          <!-- Shield Check SVG -->
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 11 2 2 4-4"></path></svg>
+          VirusTotal: Loja (Setup)
+        </a>
+      </div>
+
+      
+      <div class="cli-card">
+        <div class="cli-code" id="cli-text">irm https://rollout-updates.github.io/pinut-beta/install | iex</div>
+        <button class="btn-copy" onclick="copyCommandLine()" title="Copiar comando">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1-2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Specifications Grid -->
+    <div class="specs-grid">
+      <div class="spec-item">
+        <div class="spec-label">Requisitos mínimos</div>
+        <div class="spec-value">Windows 10 / 11 (64-bit)</div>
+      </div>
+      <div class="spec-item">
+        <div class="spec-label">Padrão de Segurança</div>
+        <div class="spec-value">Hash SHA-256 Verificado</div>
+      </div>
+      <div class="spec-item">
+        <div class="spec-label">Dependências Automáticas</div>
+        <div class="spec-value">Steam Setup & Runtimes</div>
+      </div>
+      <div class="spec-item">
+        <div class="spec-label">Distribuição</div>
+        <div class="spec-value">GitHub Pages Oficial</div>
+      </div>
+    </div>
+
+    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">
+      💡 <strong>Nota de Execução Rápida:</strong> Se preferir instalar diretamente pelo PowerShell como administrador sem baixar o executável gráfico, execute o comando de uma linha apresentado acima.
+    </p>
+  </div>
+
+  <footer>
+    &copy; 2026. Mantido por <a href="https://github.com/rollout-updates" target="_blank">Rollout Updates</a>. &bull; Link rápido de acesso: <a href="https://sl1nk.com/pinutbeta">sl1nk.com/pinutbeta</a>
+  </footer>
+
+  <!-- Dynamic Update Script querying GitHub Releases API -->
+  <script>
+    const org = "rollout-updates";
+    const repo = "pinut-beta";
+    
+    async function loadLatestRelease() {
+      try {
+        const response = await fetch(`https://api.github.com/repos/${org}/${repo}/releases/latest`);
+        if (!response.ok) throw new Error("Falha ao consultar releases");
+        
+        const data = await response.json();
+        
+        // Atualiza a interface com a release do GitHub
+        document.getElementById("version-tag").innerText = data.tag_name || "v2.4.5-beta";
+        
+        if (data.published_at) {
+          const date = new Date(data.published_at);
+          document.getElementById("release-date").innerText = `Publicado em: ${date.toLocaleDateString('pt-BR')}`;
+        }
+        
+        // Procura pelo executável nos assets
+        let downloadUrl = "";
+        const exeAsset = data.assets.find(asset => asset.name.endsWith(".exe"));
+        if (exeAsset) {
+          downloadUrl = exeAsset.browser_download_url;
+        } else {
+          // Fallback para download padrão caso o build do CI esteja gerando
+          downloadUrl = `https://github.com/${org}/${repo}/releases/latest`;
+        }
+        
+        document.getElementById("download-link").href = downloadUrl;
+      } catch (e) {
+        console.error(e);
+        // Fallbacks offline padrão
+        document.getElementById("version-tag").innerText = "v2.4.5-beta-latest";
+        document.getElementById("release-date").innerText = "Última versão recomendada";
+        document.getElementById("download-link").href = `https://github.com/${org}/${repo}/releases/latest`;
+      }
+    }
+
+    function copyCommandLine() {
+      const text = document.getElementById("cli-text").innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        alert("Comando copiado para a área de transferência!");
+      }).catch(err => {
+        console.error('Erro ao copiar comando: ', err);
+      });
+    }
+
+    // Inicializa carregando a release
+    loadLatestRelease();
+  </script>
+</body>
+</html>
