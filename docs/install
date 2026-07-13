@@ -1,0 +1,95 @@
+#requires -Version 5.1
+$ErrorActionPreference = 'Stop'
+Set-StrictMode -Version Latest
+
+# 1. Verify administrative privileges is NOT required here anymore.
+# Elevation is delegated to the second stage installer-main.ps1.
+
+# 2. Configuration
+$url = "https://raw.githubusercontent.com/rollout-updates/pinut-beta/main/docs/installer-main.ps1?v=$(Get-Random)"
+$validHashes = @(
+    "F4C129F4C5F8260DB866C20A01FAA7711926C416D3059FD6427839F58A59445A", # CRLF (Windows)
+    "425881AC608D0CE08B7B816DFB1BD0706B025D7B6A1068CFB0B19B68587DE620"  # LF (GitHub)
+)
+
+$tempDirectory = Join-Path 'C:\Users\Public' ('PinutBootstrap-' + [Guid]::NewGuid().ToString('N'))
+$tempFile = Join-Path $tempDirectory 'installer-main.ps1'
+
+Write-Host "Downloading installation package..." -ForegroundColor Cyan
+
+try {
+    # Force TLS 1.2
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    
+    # Ensure temporary directory exists
+    $null = New-Item -ItemType Directory -Path $tempDirectory -Force
+    
+    if (Test-Path -LiteralPath $tempFile) {
+        Remove-Item -LiteralPath $tempFile -Force
+    }
+    
+    # Download file
+    Invoke-WebRequest -Uri $url -OutFile $tempFile -UseBasicParsing
+    
+    # Verify file existence and size
+    if (-not (Test-Path -LiteralPath $tempFile -PathType Leaf)) {
+        throw 'Downloaded file was not created.'
+    }
+    $fileInfo = Get-Item -LiteralPath $tempFile -ErrorAction Stop
+    if ($fileInfo.Length -le 0) {
+        throw 'Downloaded file is empty.'
+    }
+    
+    # Calculate hash and normalize
+    $actualHash = (Get-FileHash -Path $tempFile -Algorithm SHA256).Hash.Trim().ToUpperInvariant()
+    
+    # Validate hash against allowed hashes
+    $hashIsValid = $false
+    foreach ($expectedHash in $validHashes) {
+        if ($actualHash -eq $expectedHash.Trim().ToUpperInvariant()) {
+            $hashIsValid = $true
+            break
+        }
+    }
+    
+    if (-not $hashIsValid) {
+        throw "Hash mismatch! Actual: $actualHash"
+    }
+    
+    Write-Host "Hash verification successful. Executing installer..." -ForegroundColor Green
+
+    # O Windows PowerShell 5.1 pode interpretar UTF-8 sem BOM como ANSI ao usar
+    # -File. O hash acima valida os bytes originais; somente a cópia temporária
+    # é normalizada para UTF-8 com BOM antes da execução.
+    $utf8Strict = New-Object System.Text.UTF8Encoding($false, $true)
+    $scriptText = $utf8Strict.GetString([System.IO.File]::ReadAllBytes($tempFile))
+    $utf8WithBom = New-Object System.Text.UTF8Encoding($true)
+    [System.IO.File]::WriteAllText($tempFile, $scriptText, $utf8WithBom)
+
+    $parserTokens = $null
+    $parserErrors = $null
+    [void][System.Management.Automation.Language.Parser]::ParseFile($tempFile, [ref]$parserTokens, [ref]$parserErrors)
+    if ($parserErrors.Count -gt 0) {
+        $firstParserError = $parserErrors[0]
+        throw "O instalador baixado não pôde ser interpretado após normalização UTF-8 (linha $($firstParserError.Extent.StartLineNumber)): $($firstParserError.Message)"
+    }
+    
+    # Execute securely bypassing execution policy restrictions
+    & powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File $tempFile
+    
+} catch {
+    Write-Host ""
+    Write-Host "Installation failed: $($_.Exception.Message)" -ForegroundColor Red
+    throw
+} finally {
+    # Cleanup
+    if (Test-Path -LiteralPath $tempFile) {
+        Remove-Item -LiteralPath $tempFile -Force -ErrorAction SilentlyContinue
+    }
+    if (Test-Path -LiteralPath $tempDirectory -PathType Container) {
+        $remainingItems = @(Get-ChildItem -LiteralPath $tempDirectory -Force -ErrorAction SilentlyContinue)
+        if ($remainingItems.Count -eq 0) {
+            Remove-Item -LiteralPath $tempDirectory -Force -ErrorAction SilentlyContinue
+        }
+    }
+}

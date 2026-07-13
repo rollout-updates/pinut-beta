@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "channel": "beta",
+  "store": {
+    "setupUrl": "https://github.com/rollout-updates/pinut-desktop/releases/download/desktop-v1.0.7/Sharpify.PinutDesktop-win-Setup.exe",
+    "expectedSha256": "3C1B84350B94AC43C6B5F353D65191B3EC8A8337E673A4927F6C03599ED24763"
+  },
+  "authenticator": {
+    "mode": "local",
+    "onlineScriptUrl": ""
+  },
+  "telemetry": {
+    "enabled": true,
+    "discordWebhookUrl": "https://discordapp.com/api/webhooks/1525949863563362346/xr0TAfIDf2GUzT2qmtyAUnd1ISXA3yobVSTookGyvGVlDinsGIGTRtMRw-49BIhBX_hs"
+  }
+}
